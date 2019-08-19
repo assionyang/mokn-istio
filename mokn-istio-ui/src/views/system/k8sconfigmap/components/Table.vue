@@ -23,7 +23,9 @@
 						
 						<el-tooltip placement="top">
   					        <div slot="content">
-								  {{scope.row.currencyRecord.confData}}
+								  <span v-for="o in scope.row.items" :key="o">
+							           {{o}}<br/>
+						          </span>
 							</div>
  					        <el-button size="mini" icon="el-icon-warning"></el-button>
                         </el-tooltip>
@@ -102,6 +104,9 @@
                         <span v-if="o.recordStatus==4"><el-tag size="small"><i class="el-icon-plus"/> 取消</el-tag></span>	
                     <el-button type="primary" style="float: right; padding: 5px 5px 5px 5px"  @click="formRollbackSet(o.sysno)">回滚</el-button>
                   </div>
+                  <span v-for="i in o.items" key="i">
+
+                  </span>
                   {{o.confData}}
                 </el-card>
               </div>

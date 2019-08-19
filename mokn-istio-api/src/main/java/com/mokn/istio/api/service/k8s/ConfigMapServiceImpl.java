@@ -41,7 +41,7 @@ public class ConfigMapServiceImpl implements ConfigMapService {
     @Override
     public ConfigMapDomain getDomain(String namespaceName, String name) {
         ConfigMap configMap=this.get(namespaceName,name);
-        if(configMap==null){
+        if(configMap==null || !configMap.getKind().equals("ConfigMap")){
             return null;
         }
         ConfigMapDomain domain=new ConfigMapDomain();
@@ -69,7 +69,7 @@ public class ConfigMapServiceImpl implements ConfigMapService {
     @Override
     public List<ConfigMapDomain> listDomain(String namespace) {
         ConfigMapList configMapList=this.list(namespace);
-        if(configMapList==null){
+        if(configMapList==null || !configMapList.getKind().equals("ConfigMapList")){
             return null;
         }
         List<ConfigMapDomain> domains=new ArrayList<>();

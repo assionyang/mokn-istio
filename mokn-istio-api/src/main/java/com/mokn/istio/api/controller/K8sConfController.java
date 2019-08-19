@@ -3,6 +3,7 @@ package com.mokn.istio.api.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.mokn.istio.api.common.JwtUtil;
 import com.mokn.istio.api.common.LoginPassport;
 import com.mokn.istio.api.common.NumberKeyUtils;
 import com.mokn.istio.api.model.db.K8sConf;
@@ -10,6 +11,7 @@ import com.mokn.istio.api.model.db.K8sConfRecord;
 import com.mokn.istio.api.model.domain.*;
 import com.mokn.istio.api.model.em.ConfRecordStatusEnum;
 import com.mokn.istio.api.service.db.K8sConfService;
+import com.mokn.istio.api.service.k8s.ConfigMapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +23,18 @@ public class K8sConfController {
 
     @Autowired
     private K8sConfService confService;
+    @Autowired
+    private ConfigMapService configMapService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @LoginPassport
     @GetMapping(value = "/list")
     public JsonResult<K8sConf> list(@RequestParam(value = "pageNo",required = false) Integer pageNo,
                                     @RequestParam(value = "pageSize",required = false) Integer pageSize,
                                     @RequestParam(value = "namespace",required = false) String namespace,
-                                    @RequestParam(value = "name",required = false) String name){
+                                    @RequestParam(value = "name",required = false) String name,
+                                    @RequestHeader(value = "Authorization",required = false) String auth){
         JsonResult<K8sConf> result=new JsonResult<>();
 
         K8sConf condition=new K8sConf();
@@ -40,7 +47,20 @@ public class K8sConfController {
 
         PageHelper.startPage(pageNo,pageSize);
         PageInfo<K8sConf> pageInfo=new PageInfo<>(confService.listConf(condition));
-        return result.success(pageInfo.getList(),pageInfo.getTotal());
+
+        List<K8sConf> k8sConfs=pageInfo.getList();
+        for(int i=0;i<k8sConfs.size();i++){
+            for(int j=0;j<k8sConfs.get(i).getItems().size();j++){
+                if(auth==null || auth.equals("") || (!jwtUtil.getValueFromToken(auth,"role").equals("admin") && !jwtUtil.getValueFromToken(auth,"role").equals("release"))){
+                    k8sConfs.get(i).getItems().get(j).setValue("******");
+                    k8sConfs.get(i).getCurrencyRecord().setConfData("没有权限查看");
+                    for(int h=0;h<k8sConfs.get(i).getRecords().size();h++){
+                        k8sConfs.get(i).getRecords().get(h).setConfData("没有权限查看");
+                    }
+                }
+            }
+        }
+        return result.success(k8sConfs,pageInfo.getTotal());
     }
 
     @LoginPassport(valid = true,role = "admin|release")
@@ -75,6 +95,10 @@ public class K8sConfController {
         condition.setName(request.getName());
         List<K8sConf> k8sConfs=confService.listConf(condition);
         if(k8sConfs.size()>0){
+            return result.fail("配置已存在");
+        }
+
+        if(configMapService.getDomain(request.getNamespace(),request.getName())!=null){
             return result.fail("配置已存在");
         }
 
