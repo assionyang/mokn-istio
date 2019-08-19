@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mokn.istio.api.mapper.K8sConfMapper" >
+    <resultMap id="ConfResultMap" type="com.mokn.istio.api.model.db.K8sConf" >
+        <id column="sysno" property="sysno" jdbcType="BIGINT" />
+        <result column="config_type" property="configType" jdbcType="INTEGER" />
+        <result column="namespace" property="namespace" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="currency_no" property="currencyNo" jdbcType="VARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="currency_type" property="currencyType" jdbcType="VARCHAR" />
+        <result column="memo" property="memo" jdbcType="VARCHAR" />
+        <collection property="currencyRecord" column="currency_no" select="com.mokn.istio.api.mapper.K8sConfMapper.selectConfRecordByRecordNo"/>
+        <collection property="records" column="sysno" select="com.mokn.istio.api.mapper.K8sConfMapper.selectConfRecordByConfSysno"/>
+    </resultMap>
+    <resultMap id="ConfRecordResultMap" type="com.mokn.istio.api.model.db.K8sConfRecord" >
+        <id column="sysno" property="sysno" jdbcType="BIGINT" />
+        <result column="conf_sysno" property="confSysno" jdbcType="BIGINT" />
+        <result column="record_no" property="recordNo" jdbcType="VARCHAR" />
+        <result column="save_type" property="saveType" jdbcType="VARCHAR" />
+        <result column="conf_data" property="confData" jdbcType="VARCHAR" />
+        <result column="record_status" property="recordStatus" jdbcType="INTEGER" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="namespace" property="namespace" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="ConfColumns" >
+       sysno,config_type,namespace,`name`,currency_no,currency_type,memo,created_at
+    </sql>
+    <sql id="ConfRecordColumns" >
+       sysno,conf_sysno,record_no,save_type,conf_data,record_status,created_at,namespace,`name`
+    </sql>
+    <insert id="insertConf" useGeneratedKeys="true" keyProperty="sysno" parameterType="com.mokn.istio.api.model.db.K8sConf">
+        INSERT INTO k8s_conf (config_type,namespace,`name`,currency_no,currency_type,memo,created_at)
+        VALUES
+        (#{configType},#{namespace},#{name},#{currencyNo},#{currencyType},#{memo},#{createdAt})
+    </insert>
+    <insert id="insertConfRecord" parameterType="java.util.List">
+        <![CDATA[
+        INSERT INTO k8s_conf_record
+        (conf_sysno,record_no,save_type,conf_data,record_status,created_at,namespace,`name`)
+        VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.confSysno},#{item.recordNo},#{item.saveType},#{item.confData},#{item.recordStatus},#{item.createdAt},#{item.namespace},#{item.name})
+        </foreach>
+    </insert>
+    <select id="selectConfBySysNo" resultMap="ConfResultMap" parameterType="long" >
+        SELECT
+        <include refid="ConfColumns" />
+        FROM k8s_conf
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </select>
+    <select id="selectConfRecordBySysno" resultMap="ConfRecordResultMap" parameterType="long" >
+        SELECT
+        <include refid="ConfRecordColumns" />
+        FROM k8s_conf_record
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </select>
+    <select id="selectConfRecordByConfSysno" resultMap="ConfRecordResultMap" parameterType="long" >
+        SELECT
+        <include refid="ConfRecordColumns" />
+        FROM k8s_conf_record
+        WHERE conf_sysno = #{sysno,jdbcType=BIGINT}
+        ORDER BY sysno DESC
+    </select>
+    <select id="selectConfRecordByRecordNo" resultMap="ConfRecordResultMap" parameterType="String" >
+        SELECT
+        <include refid="ConfRecordColumns" />
+        FROM k8s_conf_record
+        WHERE record_no = #{recordNo,jdbcType=BIGINT}
+    </select>
+    <update id="updateConf" parameterType="com.mokn.istio.api.model.db.K8sConf" >
+        UPDATE k8s_conf
+        <set >
+            <if test="configType != null and configType!=''">
+                config_type = #{configType,jdbcType=VARCHAR},
+            </if>
+            <if test="currencyNo != null and currencyNo!=''">
+                `currency_no` = #{currencyNo,jdbcType=VARCHAR},
+            </if>
+            <if test="currencyType != null and currencyType!=''">
+                `currency_type` = #{currencyType,jdbcType=VARCHAR},
+            </if>
+            <if test="memo != null and memo!=''">
+                `memo` = #{memo,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </update>
+    <update id="updateConfRecord" parameterType="com.mokn.istio.api.model.db.K8sConfRecord" >
+        UPDATE k8s_conf_record
+        <set >
+            <if test="recordStatus != null">
+                `record_status` = #{recordStatus,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </update>
+    <select id="selectConf" resultMap="ConfResultMap" parameterType="com.mokn.istio.api.model.db.K8sConf" >
+        SELECT
+        <include refid="ConfColumns" />
+        FROM k8s_conf
+        <where>
+            <if test="configType!=null and configType!=''">
+                AND config_type=#{configType}
+            </if>
+            <if test="namespace!=null and namespace!=''">
+                AND namespace=#{namespace}
+            </if>
+            <if test="name!=null and name!=''">
+                AND `name`=#{name}
+            </if>
+        </where>
+        ORDER BY sysno DESC
+    </select>
+    <select id="selectConfRecord" resultMap="ConfRecordResultMap" parameterType="com.mokn.istio.api.model.db.K8sConfRecord" >
+        SELECT
+        <include refid="ConfRecordColumns" />
+        FROM k8s_conf_record
+        <where>
+            <if test="recordStatus!=null">
+                AND `record_status`=#{recordStatus}
+            </if>
+        </where>
+        ORDER BY sysno ASC
+    </select>
+</mapper>

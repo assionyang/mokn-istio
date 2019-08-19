@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mokn.istio.api.mapper.UserMapper" >
+    <resultMap id="BaseResultMap" type="com.mokn.istio.api.model.db.User" >
+        <id column="sysno" property="sysno" jdbcType="BIGINT" />
+        <result column="username" property="username" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="role" property="role" jdbcType="VARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+    sysno,username,password,`name`,role,created_at
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM users
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+         DELETE from users WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.mokn.istio.api.model.db.User" >
+         INSERT INTO users (username,password,`name`,role,created_at) VALUES (#{username},#{password},#{name},#{role},#{createdAt})
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.mokn.istio.api.model.db.User" >
+        UPDATE users
+        <set >
+            <if test="username != null" >
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null" >
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null" >
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="role != null" >
+                role = #{role,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </update>
+    <select id="selectList" resultMap="BaseResultMap" parameterType="com.mokn.istio.api.model.db.User">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM users
+        <where>
+            <if test="username!=null and  username!=''">
+                AND username=#{username}
+            </if>
+            <if test="password!=null  and  password!=''" >
+                AND password=#{password}
+            </if>
+        </where>
+    </select>
+</mapper>

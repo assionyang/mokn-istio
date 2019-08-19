@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mokn.istio.api.mapper.IstioRouteVersionMapper" >
+    <resultMap id="IstioVersionResultMap" type="com.mokn.istio.api.model.db.IstioRouteVersion" >
+        <id column="sysno" property="sysno" jdbcType="BIGINT" />
+        <result column="version_type" property="versionType" jdbcType="INTEGER" />
+        <result column="version_no" property="versionNo" jdbcType="VARCHAR" />
+        <result column="version_title" property="versionTitle" jdbcType="VARCHAR" />
+        <result column="version_remark" property="versionRemark" jdbcType="VARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="deploy_at" property="deployAt" jdbcType="TIMESTAMP" />
+        <result column="release_at" property="releaseAt" jdbcType="TIMESTAMP" />
+        <result column="rollback_at" property="rollbackAt" jdbcType="TIMESTAMP" />
+        <result column="version_status" property="versionStatus" jdbcType="INTEGER" />
+        <result column="memo" property="memo" jdbcType="VARCHAR" />
+        <result column="oper_name" property="operName" jdbcType="VARCHAR" />
+        <collection property="items" column="sysno" select="com.mokn.istio.api.mapper.IstioRouteVersionMapper.selectVersionItemByVersionSysno"/>
+    </resultMap>
+    <resultMap id="IstioVersionItemResultMap" type="com.mokn.istio.api.model.db.IstioRouteVersionItem" >
+        <id column="sysno" property="sysno" jdbcType="BIGINT" />
+        <result column="version_sysno" property="versionSysno" jdbcType="BIGINT" />
+        <result column="version_type" property="versionType" jdbcType="INTEGER" />
+        <result column="namespace" property="namespace" jdbcType="VARCHAR" />
+        <result column="name_host" property="nameHost" jdbcType="VARCHAR" />
+        <result column="subset_old" property="subsetOld" jdbcType="VARCHAR" />
+        <result column="subset_new" property="subsetNew" jdbcType="VARCHAR" />
+        <result column="old_json" property="oldJson" jdbcType="VARCHAR" />
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
+        <result column="deploy_at" property="deployAt" jdbcType="TIMESTAMP" />
+        <result column="release_at" property="releaseAt" jdbcType="TIMESTAMP" />
+        <result column="rollback_at" property="rollbackAt" jdbcType="TIMESTAMP" />
+        <result column="version_status" property="versionStatus" jdbcType="INTEGER" />
+        <result column="memo" property="memo" jdbcType="VARCHAR" />
+        <result column="weight" property="weight" jdbcType="INTEGER" />
+        <result column="http_key" property="httpKey" jdbcType="VARCHAR" />
+        <result column="http_value" property="httpValue" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="IstioVersionColumns" >
+        sysno,version_type,version_no,version_title,version_remark,created_at,deploy_at,release_at,rollback_at,version_status,memo,oper_name
+    </sql>
+    <sql id="IstioVersionItemColumns" >
+        sysno,version_sysno,version_type,namespace,name_host,subset_old,subset_new,old_json,created_at,deploy_at,release_at,rollback_at,version_status,memo,weight,http_key,http_value
+    </sql>
+    <insert id="insertVersion" useGeneratedKeys="true" keyProperty="sysno" parameterType="com.mokn.istio.api.model.db.IstioRouteVersion">
+        INSERT INTO istio_route_version (version_type,version_no,version_title,version_remark,created_at,version_status,memo,oper_name)
+        VALUES
+        (#{versionType},#{versionNo},#{versionTitle},#{versionRemark},#{createdAt},#{versionStatus},#{memo},#{operName})
+    </insert>
+    <insert id="insertVersionItem" parameterType="java.util.List">
+        <![CDATA[
+        INSERT INTO istio_route_version_item
+        (version_sysno,version_type,namespace,name_host,subset_old,subset_new,old_json,created_at,version_status,memo,weight,http_key,http_value)
+        VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.versionSysno},#{item.versionType},#{item.namespace},#{item.nameHost},#{item.subsetOld},#{item.subsetNew},#{item.oldJson},#{item.createdAt},#{item.versionStatus},#{item.memo},#{item.weight},#{item.httpKey},#{item.httpValue})
+        </foreach>
+    </insert>
+    <select id="selectVersionBySysno" resultMap="IstioVersionResultMap" parameterType="long" >
+        SELECT
+        <include refid="IstioVersionColumns" />
+        FROM istio_route_version
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </select>
+    <select id="selectVersionItemByVersionSysno" resultMap="IstioVersionItemResultMap" parameterType="long" >
+        SELECT
+        <include refid="IstioVersionItemColumns" />
+        FROM istio_route_version_item
+        WHERE version_sysno = #{sysno,jdbcType=BIGINT}
+    </select>
+    <update id="updateVersion" parameterType="com.mokn.istio.api.model.db.IstioRouteVersion" >
+        UPDATE istio_route_version
+        <set >
+            <if test="versionType != null" >
+                version_type = #{versionType,jdbcType=VARCHAR},
+            </if>
+            <if test="versionNo != null and versionNo!=''">
+                version_no = #{versionNo,jdbcType=VARCHAR},
+            </if>
+            <if test="versionTitle != null and versionTitle!=''" >
+                `version_title` = #{versionTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="versionRemark != null and versionRemark!=''" >
+                version_remark = #{versionRemark,jdbcType=VARCHAR},
+            </if>
+            <if test="deployAt != null" >
+                deploy_at = #{deployAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="releaseAt != null" >
+                release_at = #{releaseAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="rollbackAt != null" >
+                rollback_at = #{rollbackAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="versionStatus != null" >
+                version_status = #{versionStatus,jdbcType=INTEGER},
+            </if>
+            <if test="memo != null" >
+                memo = #{memo,jdbcType=VARCHAR},
+            </if>
+            <if test="operName != null" >
+                oper_name = #{operName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </update>
+    <update id="updateVersionItem" parameterType="com.mokn.istio.api.model.db.IstioRouteVersionItem" >
+        UPDATE istio_route_version_item
+        <set >
+            <if test="versionType != null" >
+                version_type = #{versionType,jdbcType=VARCHAR},
+            </if>
+            <if test="namespace != null and namespace!=''">
+                namespace = #{namespace,jdbcType=VARCHAR},
+            </if>
+            <if test="nameHost != null and nameHost!=''" >
+                `name_host` = #{nameHost,jdbcType=VARCHAR},
+            </if>
+            <if test="subsetOld != null and subsetOld!=''" >
+                subset_old = #{subsetOld,jdbcType=VARCHAR},
+            </if>
+            <if test="subsetNew != null and subsetNew!=''" >
+                subset_new = #{subsetNew,jdbcType=VARCHAR},
+            </if>
+            <if test="oldJson != null and oldJson!=''" >
+                old_json = #{oldJson,jdbcType=VARCHAR},
+            </if>
+            <if test="deployAt != null" >
+                deploy_at = #{deployAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="releaseAt != null" >
+                release_at = #{releaseAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="rollbackAt != null" >
+                rollback_at = #{rollbackAt,jdbcType=TIMESTAMP},
+            </if>
+            <if test="versionStatus != null" >
+                version_status = #{versionStatus,jdbcType=INTEGER},
+            </if>
+            <if test="memo != null" >
+                memo = #{memo,jdbcType=VARCHAR},
+            </if>
+            <if test="weight != null" >
+                weight = #{weight,jdbcType=INTEGER},
+            </if>
+            <if test="httpKey != null" >
+                http_key = #{httpKey,jdbcType=VARCHAR},
+            </if>
+            <if test="httpValue != null" >
+                http_value = #{httpValue,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE sysno = #{sysno,jdbcType=BIGINT}
+    </update>
+    <select id="selectVersion" resultMap="IstioVersionResultMap" parameterType="com.mokn.istio.api.model.db.IstioRouteVersion" >
+        SELECT
+        <include refid="IstioVersionColumns" />
+        FROM istio_route_version
+        <where>
+            <if test="versionType!=null">
+                AND version_type=#{versionType}
+            </if>
+            <if test="versionStatus!=null" >
+                AND version_status=#{versionStatus}
+            </if>
+        </where>
+        ORDER BY sysno DESC
+    </select>
+</mapper>

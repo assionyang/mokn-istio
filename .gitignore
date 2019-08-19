@@ -1,0 +1,4 @@
+.idea/
+*.iml
+mokn-istio-api/target/
+mokn-istio-api/src/main/resources/application-dev.yaml
