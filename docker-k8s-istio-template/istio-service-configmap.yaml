@@ -1,0 +1,8 @@
+apiVersion: v1 # api版本
+kind: ConfigMap # 配置项
+metadata:
+  name: istio-service-user # 名字
+  namespace: default # 命名空间
+data:
+  # 配置为keyValue,作为环境变量使用
+  SPRING_PROFILES_ACTIVE: prod

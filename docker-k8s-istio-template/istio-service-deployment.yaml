@@ -1,0 +1,66 @@
+# 部署定义
+apiVersion: apps/v1 # api版本
+kind: Deployment # k8s部署
+metadata:
+  name: istio-service-user-{{GitTag}} #名字
+  namespace: default # 命名空间
+  labels:
+    app: istio-service-user
+    version: {{GitTag}}
+# 规格
+spec:
+  # 副本数,Pod数
+  replicas: 1
+  # 选择器
+  selector:
+    matchLabels:
+      app: istio-service-user
+      version: {{GitTag}}
+  template:
+    metadata:
+      labels:
+        app: istio-service-user # 标签，用于服务selector
+        version: {{GitTag}}
+    spec:
+      # 容器定义
+      containers:
+      - name: istio-service-user # 容器名
+        image: '100.125.0.31:20202/mk-develop/istio-service-user:{{GitTag}}' # 镜像地址
+        ports:
+        - name: http-port
+          containerPort: 8080 # 容器端口
+        # 环境变量
+        env:
+        - name: SPRING_PROFILES_ACTIVE # 环境变量名，对应application.properties的配置key
+          valueFrom:
+            configMapKeyRef: # 来自于配置项
+              name: istio-service-user # 配置项名称
+              key: SPRING_PROFILES_ACTIVE # 配置项key
+        - name: ISTIO_SERVICE_VERSION
+          value: {{GitTag}}
+        # 健康检查（容易启动用,失败一直重启）
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        # 健康检查（失败则不加入Service）
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 3
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+      imagePullSecrets:
+      - name: default-secret
+
+  revisionHistoryLimit: 10 # 记录更新版本数，用于回滚

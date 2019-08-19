@@ -1,0 +1,20 @@
+# 服务定义
+apiVersion: v1 # 使用版本
+kind: Service # k8s服务
+metadata:
+  name: istio-service-user # 名称
+  namespace: default # 命名空间
+  labels:
+    app: istio-service-user
+#规格定义
+spec:
+  ports:
+  - name: http
+    protocol: TCP # 协议
+    port: 80 # 集群端口
+    targetPort: 8080 # 容器端口
+    #nodePort: 30000 # 节点端口
+  # 选取发布,Pod
+  selector:
+    app: istio-service-user
+  type: ClusterIP # 端口类型（NodePort：节点映射，ClusterIP：集群绑定，)

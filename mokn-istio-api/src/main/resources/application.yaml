@@ -3,3 +3,26 @@ spring:
     active: dev
   application:
     name: mokn-istio-api
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:xxxxxx}
+    username: ${SPRING_DATASOURCE_USERNAME:xxxxxx}
+    password: ${SPRING_DATASOURCE_PASSWORD:xxxxxx}
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: countSql
+
+huaweicloud:
+  token:
+    url: ${HUAWEICLOUD_TOKEN_URL:xxxxxx}
+    project: ${HUAWEICLOUD_TOKEN_PROJECT:xxxxxx}
+    username: ${HUAWEICLOUD_TOKEN_USERNAME:xxxxxx}
+    password: ${HUAWEICLOUD_TOKEN_PASSWORD:xxxxxx}
+
+k8s:
+  api:
+    url: ${K8S_API_URL:xxxxxx}
