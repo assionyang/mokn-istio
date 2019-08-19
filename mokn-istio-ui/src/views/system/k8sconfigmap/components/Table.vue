@@ -56,12 +56,7 @@
 		</el-col>
         <!--修改页面-->
 	    <el-dialog  :title="formUpdateTitle" :visible.sync="formUpdateVisible" :before-close="formUpdateClose">
-            
              <el-form :model="formUpdate" :inline="true" label-width="100px" ref="formUpdate" size="small">
-    
-              <el-form-item label="配置" >
-                        <el-input type="text" placeholder="名称" auto-complete="off" v-model="formUpdate.title" size="small" disabled="true"></el-input><br/><br/>
-              </el-form-item> 
               <div v-for="o in formUpdate.items" :key="o">
 	    	    <el-card class="box-card">
                   <div slot="header" class="clearfix">
@@ -72,7 +67,7 @@
                     <el-input type="text" auto-complete="off" v-model="o.key"></el-input>
                   </el-form-item> 
                   <el-form-item label="配置值" prop="userTitle">
-                     <el-input type="text" auto-complete="off" v-model="o.value"></el-input>
+                     <el-input type="textarea" :rows="1" placeholder="请输入配置值" v-model="o.value"></el-input>
                   </el-form-item>
                 </el-card>
               </div>
@@ -88,10 +83,7 @@
 	    <el-dialog  :title="formRollbackTitle" :visible.sync="formRollbackVisible" :before-close="formRollbackClose">
             
              <el-form :model="formRollback" :inline="true" label-width="100px" ref="formRollback" size="small">
-    
-              <el-form-item label="配置" >
-                        <el-input type="text" placeholder="名称" auto-complete="off" v-model="formRollback.title" size="small" disabled="true"></el-input><br/><br/>
-              </el-form-item> 
+
               <div v-for="o in formRollback.records" :key="o">
 	    	    <el-card class="box-card">
                   <div slot="header" class="clearfix">
@@ -104,10 +96,7 @@
                         <span v-if="o.recordStatus==4"><el-tag size="small"><i class="el-icon-plus"/> 取消</el-tag></span>	
                     <el-button type="primary" style="float: right; padding: 5px 5px 5px 5px"  @click="formRollbackSet(o.sysno)">回滚</el-button>
                   </div>
-                  <span v-for="i in o.items" key="i">
-
-                  </span>
-                  {{o.confData}}
+                  <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="o.confData"></el-input>
                 </el-card>
               </div>
            
@@ -161,9 +150,8 @@ const {mapGetters,mapActions}=createNamespacedHelpers('system/k8sconfigmap');
 			//导入actions方法
             ...mapActions(['getConfigMaps','selectsChange','currentChange','sizeChange']),
             formRollbackShow(row){
-                this.formRollbackTitle="回滚配置";
                 this.formRollbackVisible=true;
-                this.formRollback.title=row.namespace+"/"+row.name;
+                this.formRollbackTitle="回滚配置："+row.namespace+"/"+row.name;
                 this.formRollback.sysno=row.sysno;
                 this.formRollback.records=row.records;
             },
@@ -224,9 +212,8 @@ const {mapGetters,mapActions}=createNamespacedHelpers('system/k8sconfigmap');
                 this.formUpdate.items=[];
             },
             formUpdateShow(row){
-                this.formUpdateTitle="修改配置";
                 this.formUpdateVisible=true;
-                this.formUpdateTitle=row.namespace+"/"+row.name;
+                this.formUpdateTitle="修改配置："+row.namespace+"/"+row.name;
                 this.formUpdate.sysno=row.sysno;
                 this.formUpdate.items=row.items;
             },

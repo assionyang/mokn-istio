@@ -2,8 +2,8 @@ import Vue from 'vue';
 
 //状态
 const state={
-	logoLongName:'Istio运维平台',//宽菜单LOGO文本
-	logoMiniName:'IO',//窄菜单LOGO文本
+	logoLongName:'Istio 运维平台',//宽菜单LOGO文本
+	logoMiniName:'O',//窄菜单LOGO文本
 	collapsed:false,//菜单折叠状态
     sysloading:false//系统加载状态
 }
