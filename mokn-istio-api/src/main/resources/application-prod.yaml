@@ -1,0 +1,26 @@
+server:
+  port: 8888
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://mysql.moknpay.com/mokn_istio?&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    username: root
+    password: Coinepay@123
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: countSql
+
+huaweicloud:
+  token:
+    url: https://iam.ap-southeast-1.myhuaweicloud.com/v3/auth/tokens
+    project: 327e5fbee42040b5ab038cff2c2033ae
+    username: blockchainpay
+    password: Blockchain@123
+
+k8s:
+  api:
+    url: https://159.138.53.246:5443

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
   application:
     name: mokn-istio-api
   datasource:
