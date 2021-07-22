@@ -30,7 +30,7 @@
     "vue-echarts": "^2.5.1",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
-    "xlsx": "^0.11.14"
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
